@@ -212,6 +212,9 @@ const GoogleMapComponent = () => {
   const [directionsService, setDirectionsService] = useState(null);
   const [directionsRenderer, setDirectionsRenderer] = useState(null);
   const [userMarker, setUserMarker] = useState(null);
+  const [path, setPath] = useState([]);
+  const [polyline, setPolyline] = useState(null);
+
 
   useEffect(() => {
     const initMap = () => {
@@ -274,6 +277,8 @@ const GoogleMapComponent = () => {
 
             map.setCenter(userLocation);
             map.setZoom(15);
+
+            setPath((prevPath) => [...prevPath, userLocation]);
           },
           (error) => {
             console.error("Error getting location:", error);
@@ -284,6 +289,24 @@ const GoogleMapComponent = () => {
       console.error("Geolocation is not supported.");
     }
   };
+
+
+  useEffect(() => {
+    if (path.length > 1) {
+      if (polyline) {
+        polyline.setMap(null); // Remove existing polyline
+      }
+      const newPath = new window.google.maps.Polyline({
+        path: path,
+        geodesic: true,
+        strokeColor: "#FF0000",
+        strokeOpacity: 1.0,
+        strokeWeight: 2,
+      });
+      newPath.setMap(map);
+      setPolyline(newPath);
+    }
+  }, [path, map]);
 
   const calculateAndDisplayRoute = () => {
     const origin = document.getElementById("origin").value;
@@ -340,6 +363,7 @@ const GoogleMapComponent = () => {
       <div id="map" style={{ height: "400px", width: "100%" }}></div>
       <div id="distance"></div>
       <div id="duration"></div>
+
     </div>
   );
 };
