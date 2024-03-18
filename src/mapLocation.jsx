@@ -306,7 +306,7 @@ const GoogleMapComponent = () => {
       newPath.setMap(map);
       setPolyline(newPath);
     }
-  }, [path, map]);
+  }, [path, map, polyline]);
 
   const calculateAndDisplayRoute = () => {
     const origin = document.getElementById("origin").value;
