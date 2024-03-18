@@ -264,6 +264,9 @@ const GoogleMapComponent = () => {
             localStorage.setItem("userLocations", JSON.stringify(userLocations));
 
             if (!userMarker) {
+              if (userMarker) {
+                              userMarker.setMap(null); // Remove the marker from the map
+                            }
               setUserMarker(new window.google.maps.Marker({
                 position: userLocation,
                 map: map,
