@@ -45,27 +45,26 @@ const GoogleMapComponent = () => {
               lng: position.coords.longitude,
             };
             setCurrentLocation(userLocation);
-  
-            // If userMarker is not set, create a new marker
-            if (!userMarker) {
-              const newMarker = new window.google.maps.Marker({
-                position: userLocation,
-                map: map,
-                icon: {
-                  url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                },
-              });
-              setUserMarker(newMarker);
-            } else {
-              // Update existing marker position
-              setUserMarker(prevMarker => {
-                prevMarker.setPosition(userLocation);
-                return prevMarker;
-              });
+   
+            if (userMarker) {
+              userMarker.setMap(null);
             }
-  
+   
+            const newMarker = new window.google.maps.Marker({
+              position: userLocation,
+              map: map,
+              icon: {
+                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+              },
+            });
+   
+            setUserMarker(newMarker);
+   
             map.setCenter(userLocation);
-            setPath([userLocation]);
+            // map.setZoom(15);
+   
+            // Remove distance point calculation and update path
+            setPath((prevPath) => [...prevPath, userLocation]);
           },
           (error) => {
             console.error("Error getting location:", error);
