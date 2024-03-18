@@ -167,6 +167,9 @@ const GoogleMapComponent = () => {
   };
 
   const moveCar = (position) => {
+    if (carMarker) {
+      carMarker.setMap(null); // Remove the marker from the map
+    }
     if (!carMarker) {
       setCarMarker(new window.google.maps.Marker({
         position: position,
