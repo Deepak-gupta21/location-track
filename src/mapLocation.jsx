@@ -45,25 +45,22 @@ const GoogleMapComponent = () => {
               lng: position.coords.longitude,
             };
             setCurrentLocation(userLocation);
-   
-            if (userMarker) {
-              userMarker.setMap(null);
+
+            if (!userMarker) {
+              const newMarker = new window.google.maps.Marker({
+                position: userLocation,
+                map: map,
+                icon: {
+                  url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                },
+              });
+              setUserMarker(newMarker);
+            } else {
+              userMarker.setPosition(userLocation);
             }
-   
-            const newMarker = new window.google.maps.Marker({
-              position: userLocation,
-              map: map,
-              icon: {
-                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-              },
-            });
-   
-            setUserMarker(newMarker);
-   
+
             map.setCenter(userLocation);
-            // map.setZoom(15);
-   
-            // Remove distance point calculation and update path
+
             setPath((prevPath) => [...prevPath, userLocation]);
           },
           (error) => {
@@ -74,26 +71,33 @@ const GoogleMapComponent = () => {
         console.error("Geolocation is not supported.");
       }
     };
+
     getUserLocation();
+
+    return () => {
+      // Clean up resources
+      if (userMarker) {
+        userMarker.setMap(null);
+      }
+    };
   }, [map, userMarker]);
-  
 
   useEffect(() => {
     if (path.length > 1 && map) {
       if (polyline) {
-        polyline.setMap(null);
+        polyline.setPath(path);
+      } else {
+        const newPath = new window.google.maps.Polyline({
+          path: path,
+          geodesic: true,
+          strokeColor: "#FF0000",
+          strokeOpacity: 1.0,
+          strokeWeight: 2,
+        });
+        newPath.setMap(map);
+        setPolyline(newPath);
       }
-      const newPath = new window.google.maps.Polyline({
-        path: path,
-        geodesic: true,
-        strokeColor: "#FF0000",
-        strokeOpacity: 1.0,
-        strokeWeight: 2,
-      });
-      newPath.setMap(map);
-      setPolyline(newPath);
 
-      // Calculate total distance
       let distance = 0;
       for (let i = 0; i < path.length - 1; i++) {
         const p1 = path[i];
@@ -103,7 +107,6 @@ const GoogleMapComponent = () => {
           new window.google.maps.LatLng(p2.lat, p2.lng)
         );
       }
-      // Convert distance to kilometers
       distance = distance / 1000;
       setTotalDistance(distance);
     }
