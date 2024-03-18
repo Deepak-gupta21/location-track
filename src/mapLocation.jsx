@@ -45,7 +45,7 @@ const GoogleMapComponent = () => {
               lng: position.coords.longitude,
             };
             setCurrentLocation(userLocation);
-
+  
             // If userMarker is not set, create a new marker
             if (!userMarker) {
               const newMarker = new window.google.maps.Marker({
@@ -58,9 +58,12 @@ const GoogleMapComponent = () => {
               setUserMarker(newMarker);
             } else {
               // Update existing marker position
-              userMarker.setPosition(userLocation);
+              setUserMarker(prevMarker => {
+                prevMarker.setPosition(userLocation);
+                return prevMarker;
+              });
             }
-
+  
             map.setCenter(userLocation);
             setPath([userLocation]);
           },
@@ -74,6 +77,7 @@ const GoogleMapComponent = () => {
     };
     getUserLocation();
   }, [map, userMarker]);
+  
 
   useEffect(() => {
     if (path.length > 1 && map) {
